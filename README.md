@@ -1,4 +1,8 @@
 # Wordsters
+
+![Wordsters box](https://raw.githubusercontent.com/CharlesOB/Wordsters/main/wordsters_box.jpg)
+![Wordsters Game Components](https://raw.githubusercontent.com/CharlesOB/Wordsters/main/wordsters_parts.jpg)
+
 ## Orientation
 Wordsters is a board game published in 1991 in which players compete by thinking of words that follow a given three-letter pattern. Players then write the words on a secret personal score sheet. During a round of word declaration, players take turns declaring words on their score sheets. Players are awarded 1 point for declaring words that other players do not have, and 2 points for declaring words that other players do have on their score sheets. Once a player has declared a word, no other player may declare the same word for the rest of the round. 
 
