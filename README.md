@@ -9,6 +9,8 @@ Here is the gist: Wordsters is a board game published in 1991 by Milton Bradley 
 
 Words follow the three-letter pattern if they contain the three letters in order, but with any number of letters in between them. For example, if the pattern was "OTI", acceptable matches could include "MOTION", "CONSTELLATION", "OSTRICH", "LOTIS", etc. Each of these words contains the letters o, t, and i in that order, but may have letters between them. 
 
+The full explanation of the rules can be found [here](https://www.ultraboardgames.com/wordsters/game-rules.php).
+
 ## Problem
 From this simple set of rules, a few answerable questions come to mind. <br/>
 In this game, what are the words that match the most three letter patterns? I want to memorize these before we play the game since they are the most likely to match any given pattern. <br/>
