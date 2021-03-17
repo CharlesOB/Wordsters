@@ -31,4 +31,6 @@ interactCommonTriad :: String -> String
 interactCommonTriad = unlines . take 100 . sortCommonTriad . lines
 
 main = do
-  interact interactCommonTriad
+  -- interact interactCommonTriad
+  words <- readFile "words_alpha.txt"
+  writeFile "output.txt" (interactCommonTriad words)
