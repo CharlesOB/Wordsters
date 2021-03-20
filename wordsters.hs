@@ -1,5 +1,7 @@
-import Data.List (nub, sort, sortBy, group)
+import Data.List (nub, sort, sortBy, group, elemIndex)
 import Data.Char (isUpper)
+import Data.Maybe (fromMaybe)
+import System.Environment
 
 wordsters3 :: Eq a => [a] -> [[a]]
 wordsters3 [] = error "Cannot wordsters3 on empty list!"
@@ -18,11 +20,14 @@ removeBadWords :: [String] -> [String]
 removeBadWords = filter (\s -> ((>2) . length $ s) && (not . isUpper . head $ s) && (not ('\'' `elem` s)))
 
 sortCommonTriad :: [String] -> [String]
-sortCommonTriad = map head . sortBy (\a b -> compare (length b) (length a)) . group . sort . concat . map wordsters3 . removeBadWords
-
+sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map wordsters3 . removeBadWords
 
 bestWords :: [String] -> [String]
-bestWords = sortBy (\a b -> compare (length $ wordsters3 b) (length $ wordsters3 a)) . removeBadWords
+bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (length $ snd b) (length $ snd a)) . zip words . map wordsters3 . removeBadWords $ words
+
+-- Given a list of sorted strings, return the percentile at which a string lands in the list.
+percentile :: (Eq a, Fractional b) => [a] -> a -> b
+percentile xs x = 100 * ((fromIntegral . fromMaybe (-1) $ elemIndex x xs) + 1) / (fromIntegral . length $ xs)
 
 interactBestWords :: String -> String
 interactBestWords = unlines . take 100 . bestWords . lines
@@ -30,7 +35,16 @@ interactBestWords = unlines . take 100 . bestWords . lines
 interactCommonTriad :: String -> String
 interactCommonTriad = unlines . take 100 . sortCommonTriad . lines
 
-main = do
-  -- interact interactCommonTriad
+-- Interact on the command line. Type in a triad to see its percentile ranking.
+interactPercentile :: [String] -> String -> String
+interactPercentile xs = unlines . map (show . percentile xs) . lines
+
+main = do  
+  --triadLines <- readFile "sorted_triads.txt"
+  --let triads = lines triadLines
+  --interact (interactPercentile triads)
+  
   words <- readFile "words_alpha.txt"
-  writeFile "output.txt" (interactCommonTriad words)
+  writeFile "sorted_triads.txt" (unlines . sortCommonTriad . lines $ words)
+  writeFile "sorted_words.txt" (unlines . bestWords . lines $ words)
+  --writeFile "output.txt" ((interactCommonTriad words) ++ "\n" ++ (interactBestWords words))
