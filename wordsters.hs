@@ -25,8 +25,6 @@ sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . gr
 bestWords :: [String] -> [String]
 bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (length $ snd b) (length $ snd a)) . zip words . map wordsters3 . removeBadWords $ words
 
---bestWords = sortBy (\a b -> compare (length $ wordsters3 b) (length $ wordsters3 a)) . removeBadWords
-
 -- Given a list of sorted strings, return the percentile at which a string lands in the list.
 percentile :: (Eq a, Fractional b) => [a] -> a -> b
 percentile xs x = 100 * ((fromIntegral . fromMaybe (-1) $ elemIndex x xs) + 1) / (fromIntegral . length $ xs)
