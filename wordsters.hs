@@ -3,34 +3,37 @@ import Data.Char (isUpper)
 import Data.Maybe (fromMaybe)
 import System.Environment
 
-wordsters3 :: Eq a => [a] -> [[a]]
-wordsters3 [] = error "Cannot wordsters3 on empty list!"
-wordsters3 [x] = error "Cannot wordsters3 on list length < 3!"
-wordsters3 [x, y] = error "Cannot wordsters3 on list length < 3!"
-wordsters3 [x, y, z] = [[x, y, z]]
-wordsters3 (x:xs) = nub $ (map (x:) . wordsters2 $ xs) ++ wordsters3 xs
+listTriads :: Eq a => [a] -> [[a]]
+listTriads [] = error "Cannot listTriads on empty list!"
+listTriads [x] = error "Cannot listTriads on list length < 3!"
+listTriads [x, y] = error "Cannot listTriads on list length < 3!"
+listTriads [x, y, z] = [[x, y, z]]
+listTriads (x:xs) = nub $ (map (x:) . listPairs $ xs) ++ listTriads xs
 
-wordsters2 :: Eq a => [a] -> [[a]]
-wordsters2 [] = error "Cannot wordsters2 on empty list!"
-wordsters2 [x] = error "Cannot wordsters2 on list length < 2!"
-wordsters2 [x, y] = [[x, y]]
-wordsters2 (x:xs) = nub $ (map ((x:) . (:[])) xs) ++ wordsters2 xs
+listPairs :: Eq a => [a] -> [[a]]
+listPairs [] = error "Cannot listPairs on empty list!"
+listPairs [x] = error "Cannot listPairs on list length < 2!"
+listPairs [x, y] = [[x, y]]
+listPairs (x:xs) = nub $ (map ((x:) . (:[])) xs) ++ listPairs xs
 
 removeBadWords :: [String] -> [String]
-removeBadWords = filter (\s -> ((>2) . length $ s) && (not . isUpper . head $ s) && (not ('\'' `elem` s)))
+removeBadWords = filter (\s -> ((>3) . length $ s) && isLowerAlpha s)
+    where isLowerAlpha = foldr (&&) True . map (`elem` ['a'..'z'])
 
 sortCommonTriad :: [String] -> [String]
-sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map wordsters3 . removeBadWords
+sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map listTriads . removeBadWords
 
 bestWords :: [String] -> [String]
-bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (length $ snd b) (length $ snd a)) . zip words . map wordsters3 . removeBadWords $ words
+bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (snd b) (snd a)) . zip words . map (length . listTriads) $ words
+
+--bestWords = sortBy (\a b -> compare (length $ listTriads b) (length $ listTriads a)) . removeBadWords
 
 -- Given a list of sorted strings, return the percentile at which a string lands in the list.
 percentile :: (Eq a, Fractional b) => [a] -> a -> b
 percentile xs x = 100 * ((fromIntegral . fromMaybe (-1) $ elemIndex x xs) + 1) / (fromIntegral . length $ xs)
 
 interactBestWords :: String -> String
-interactBestWords = unlines . take 100 . bestWords . lines
+interactBestWords = unlines . take 100 . bestWords . removeBadWords . lines
 
 interactCommonTriad :: String -> String
 interactCommonTriad = unlines . take 100 . sortCommonTriad . lines
@@ -45,6 +48,6 @@ main = do
   --interact (interactPercentile triads)
   
   words <- readFile "words_alpha.txt"
-  writeFile "sorted_triads.txt" (unlines . sortCommonTriad . lines $ words)
-  writeFile "sorted_words.txt" (unlines . bestWords . lines $ words)
+  --writeFile "sorted_triads.txt" (unlines . sortCommonTriad . lines $ words)
+  writeFile "sorted_words.txt" (unlines . bestWords . removeBadWords . lines $ words)
   --writeFile "output.txt" ((interactCommonTriad words) ++ "\n" ++ (interactBestWords words))
