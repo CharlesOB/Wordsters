@@ -17,3 +17,33 @@ In this game, what are the words that match the most three letter patterns? I wa
 What are the easiest and hardest three-letter patterns? I could memorize words that belong to the hardest patterns. <br/>
 Given a three-letter pattern, how does it rank in difficulty against all other possible patterns? I am just curious. <br/> 
 Given a word, how does it rank in usefulness against all other possible words? I am also curious about this one. 
+
+## Solution
+To begin solving any of these problems let us first consider all pairs of letters that a word could possibly have in order. Given a string of text, we will generate all possible pairs with this definition: a list of all pairs contained in a two-character string is the string itself; in a longer string, it is the first character paired with each remaining character followed by a list of all pairs in the string without the first character, removing duplicates.
+```haskell
+listPairs :: Eq a => [a] -> [[a]]
+listPairs [] = error "Cannot listPairs on empty list!"
+listPairs [x] = error "Cannot listPairs on list length < 2!"
+listPairs [x, y] = [[x, y]]
+listPairs (x:xs) = nub $ (map ((x:) . (:[])) xs) ++ listPairs xs
+```
+This definition allows us to define a list of all triads in terms of lists of pairs with added characters: a list of all triads contained in a three-letter string is the string itself; in a longer string, it is the first character combined with each pair made from the remaining characters followed by a list of all triads in the string without the first character, removing duplicates.
+```haskell
+listTriads :: Eq a => [a] -> [[a]]
+listTriads [] = error "Cannot listTriads on empty list!"
+listTriads [x] = error "Cannot listTriads on list length < 3!"
+listTriads [x, y] = error "Cannot listTriads on list length < 3!"
+listTriads [x, y, z] = [[x, y, z]]
+listTriads (x:xs) = nub $ (map (x:) . listPairs $ xs) ++ listTriads xs
+```
+Here's an auxilliary function that removes words that would not adhere to Wordsters' rules as valid responses during the game: the words cannot be fewer than 4 characters and can not contain punctuation or uppercase characters (denoting a proper noun).
+```haskell
+removeBadWords :: [String] -> [String]
+removeBadWords = filter (\s -> ((>3) . length $ s) && isLowerAlpha s)
+    where isLowerAlpha = foldr (&&) True . map (`elem` ['a'..'z'])
+```
+With this definition, it becomes easy to find the most common triads in a list of words by filtering out invalid words and then finding, grouping, and counting all triads in each word. 
+```haskell
+sortCommonTriad :: [String] -> [String]
+sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map listTriads . removeBadWords
+```
