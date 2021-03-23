@@ -16,24 +16,23 @@ listPairs [x] = error "Cannot listPairs on list length < 2!"
 listPairs [x, y] = [[x, y]]
 listPairs (x:xs) = nub $ (map ((x:) . (:[])) xs) ++ listPairs xs
 
-removeBadWords :: [String] -> [String]
-removeBadWords = filter (\s -> ((>3) . length $ s) && isLowerAlpha s)
+removeInvalidWords :: [String] -> [String]
+removeInvalidWords = filter (\s -> ((>3) . length $ s) && isLowerAlpha s)
     where isLowerAlpha = foldr (&&) True . map (`elem` ['a'..'z'])
 
 sortCommonTriad :: [String] -> [String]
-sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map listTriads . removeBadWords
+sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map listTriads . removeInvalidWords
 
 bestWords :: [String] -> [String]
-bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (snd b) (snd a)) . zip words . map (length . listTriads) $ words
-
---bestWords = sortBy (\a b -> compare (length $ listTriads b) (length $ listTriads a)) . removeBadWords
+bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (snd b) (snd a)) . zip validWords . map (length . listTriads) $ validWords
+    where validWords = removeInvalidWords words
 
 -- Given a list of sorted strings, return the percentile at which a string lands in the list.
 percentile :: (Eq a, Fractional b) => [a] -> a -> b
 percentile xs x = 100 * ((fromIntegral . fromMaybe (-1) $ elemIndex x xs) + 1) / (fromIntegral . length $ xs)
 
 interactBestWords :: String -> String
-interactBestWords = unlines . take 100 . bestWords . removeBadWords . lines
+interactBestWords = unlines . take 100 . bestWords . lines
 
 interactCommonTriad :: String -> String
 interactCommonTriad = unlines . take 100 . sortCommonTriad . lines
@@ -48,6 +47,5 @@ main = do
   --interact (interactPercentile triads)
   
   words <- readFile "words_alpha.txt"
-  --writeFile "sorted_triads.txt" (unlines . sortCommonTriad . lines $ words)
-  writeFile "sorted_words.txt" (unlines . bestWords . removeBadWords . lines $ words)
-  --writeFile "output.txt" ((interactCommonTriad words) ++ "\n" ++ (interactBestWords words))
+  writeFile "sorted_triads.txt" (unlines . sortCommonTriad . lines $ words)
+  writeFile "sorted_words.txt" (unlines . bestWords . lines $ words)
