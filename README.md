@@ -38,12 +38,19 @@ listTriads (x:xs) = nub $ (map (x:) . listPairs $ xs) ++ listTriads xs
 ```
 Here's an auxilliary function that removes words that would not adhere to Wordsters' rules as valid responses during the game: the words cannot be fewer than 4 characters and can not contain punctuation or uppercase characters (denoting a proper noun).
 ```haskell
-removeBadWords :: [String] -> [String]
-removeBadWords = filter (\s -> ((>3) . length $ s) && isLowerAlpha s)
+removeInvalidWords :: [String] -> [String]
+removeInvalidWords = filter (\s -> ((>3) . length $ s) && isLowerAlpha s)
     where isLowerAlpha = foldr (&&) True . map (`elem` ['a'..'z'])
 ```
-With this definition, it becomes easy to find the most common triads in a list of words by filtering out invalid words and then finding, grouping, and counting all triads in each word. 
+With this definition, it becomes easy to sort all triads in a list of words by how common they are by filtering out invalid words and then finding, grouping, and counting all triads in each word. 
 ```haskell
 sortCommonTriad :: [String] -> [String]
 sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map listTriads . removeBadWords
 ```
+We can also sort a list of words by how many different triads a word satisfies. This can be done by listing all triads that apply to each word, attaching the word to each list, sorting the lists by their size, and then removing the lists of triads to leave only a sorted list of words.
+```haskell
+bestWords :: [String] -> [String]
+bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (snd b) (snd a)) . zip validWords . map (length . listTriads) $ validWords
+    where validWords = removeInvalidWords words
+```
+With these functions defined, we now know what are the most useful words in a game of Wordsters. The top five in our dictionary are dichlorodiphenyltrichloroethane, formaldehydesulphoxylate, pneumoventriculography, formaldehydesulphoxylic, and desoxyribonucleoprotein. The easiest triad to play the game with is "ati" and the hardest is "zzq."
