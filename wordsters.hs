@@ -24,7 +24,7 @@ sortCommonTriad :: [String] -> [String]
 sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . group . sort . concat . map listTriads . removeInvalidWords
 
 bestWords :: [String] -> [String]
-bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (snd b) (snd a)) . zip validWords . map (length . listTriads) $ validWords
+bestWords words = map fst . sortBy (\a b -> compare (snd b) (snd a)) . zip validWords . map (length . listTriads) $ validWords
     where validWords = removeInvalidWords words
 
 -- Given a list of sorted strings, return the percentile at which a string lands in the list.
