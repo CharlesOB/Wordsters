@@ -50,7 +50,7 @@ sortCommonTriad = map head . sortBy (\a b -> compare (length a) (length b)) . gr
 We can also sort a list of words by how many different triads a word satisfies. This can be done by listing all triads that apply to each word, attaching the word to each list, sorting the lists by their size, and then removing the lists of triads to leave only a sorted list of words.
 ```haskell
 bestWords :: [String] -> [String]
-bestWords words = map (\a -> fst a) . sortBy (\a b -> compare (snd b) (snd a)) . zip validWords . map (length . listTriads) $ validWords
+bestWords words = map fst . sortBy (\a b -> compare (snd b) (snd a)) . zip validWords . map (length . listTriads) $ validWords
     where validWords = removeInvalidWords words
 ```
 With these functions defined, we now know what are the most useful words in a game of Wordsters. The top five in our dictionary are dichlorodiphenyltrichloroethane, formaldehydesulphoxylate, pneumoventriculography, formaldehydesulphoxylic, and desoxyribonucleoprotein. The easiest triad to play the game with is "ati" and the hardest is "zzq."
